@@ -1,0 +1,224 @@
+IMPORTS
+{
+    import java.util.Arrays;
+    import java.util.ArrayList;
+
+    import rv_protocol.event_replayer.Event;
+
+}
+
+GLOBAL
+{
+
+    VARIABLES
+    {
+
+    }
+
+    EVENTS
+    {
+        before_generate_pre_keys(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("BEFORE") &&
+                e1.getWhat().equals("generate_pre_keys")
+            } where {
+                e = e1;
+            }
+
+        after_generate_pre_keys(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("AFTER") &&
+                e1.getWhat().equals("generate_pre_keys")
+            } where {
+                e = e1;
+            }
+
+        before_delete_pre_key(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("BEFORE") &&
+                e1.getWhat().equals("delete_pre_key")
+            } where {
+                e = e1;
+            }
+
+        after_delete_pre_key(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("AFTER") &&
+                e1.getWhat().equals("delete_pre_key")
+            } where {
+                e = e1;
+            }
+
+        before_publish_bundle(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("BEFORE") &&
+                e1.getWhat().equals("publish_bundle")
+            } where {
+                e = e1;
+            }
+
+        after_publish_bundle(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("AFTER") &&
+                e1.getWhat().equals("publish_bundle")
+            } where {
+                e = e1;
+            }
+
+        before_rotate_signed_pre_key(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("BEFORE") &&
+                e1.getWhat().equals("rotate_signed_pre_key")
+            } where {
+                e = e1;
+            }
+
+        after_rotate_signed_pre_key(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("AFTER") &&
+                e1.getWhat().equals("rotate_signed_pre_key")
+            } where {
+                e = e1;
+            }
+
+        before_from_model(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("BEFORE") &&
+                e1.getWhat().equals("from_model")
+            } where {
+                e = e1;
+            }
+
+        after_from_model(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("AFTER") &&
+                e1.getWhat().equals("from_model")
+            } where {
+                e = e1;
+            }
+
+        before_delete_hidden_pre_keys(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("BEFORE") &&
+                e1.getWhat().equals("delete_hidden_pre_keys")
+            } where {
+                e = e1;
+            }
+
+        after_delete_hidden_pre_keys(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("AFTER") &&
+                e1.getWhat().equals("delete_hidden_pre_keys")
+            } where {
+                e = e1;
+            }
+
+        before_get_shared_secret_active(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("BEFORE") &&
+                e1.getWhat().equals("get_shared_secret_active")
+            } where {
+                e = e1;
+            }
+
+        after_get_shared_secret_active(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("AFTER") &&
+                e1.getWhat().equals("get_shared_secret_active")
+            } where {
+                e = e1;
+            }
+
+        before_get_shared_secret_passive(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("BEFORE") &&
+                e1.getWhat().equals("get_shared_secret_passive")
+            } where {
+                e = e1;
+            }
+
+        after_get_shared_secret_passive(
+            Event e
+        ) = { Event e1.replay() }
+            filter{
+                e1.getWhen().equals("AFTER") &&
+                e1.getWhat().equals("get_shared_secret_passive")
+            } where {
+                e = e1;
+                bundleB_changed = (boolean)e1.getWatch().get("bundleB_changed");
+                identity_key_same = (boolean)e1.getWatch().get("identity_key_same");
+                signed_pre_key_same = (boolean)e1.getWatch().get("signed_pre_key_same");
+                signed_pre_key_signature_same = (boolean)e1.getWatch().get("signed_pre_key_signature_same");
+                pre_key_deleted = (boolean)e1.getWatch().get("pre_key_deleted");
+                pre_keys_same = (boolean)e1.getWatch().get("pre_keys_same");
+                shared_secret_same = (boolean)e1.getWatch().get("shared_secret_same");
+                associated_data_same = (boolean)e1.getWatch().get("associated_data_same");
+            }
+
+        PROPERTY x3dh{
+            STATES
+            {
+                ACCEPTING{ final}
+                BAD{ bad }
+                NORMAL{
+                    generated_keys_A
+                    generated_keys_B
+                    published_keys_A
+                    published_keys_B
+                    secret_active
+                    secret_passive
+                    hidden_pre_keys_deleted
+                }
+                STARTING{ start }
+            }
+
+            TRANSITIONS{
+                %%Normal execution
+                start -> generated_keys_A [after_generate_pre_keys \ System.out.println("--> " + e.toString());]
+                generated_keys_A -> published_keys_A [after_publish_bundle \System.out.println("--> " + e.toString());]
+                published_keys_A -> generated_keys_B [before_generate_pre_keys \ System.out.println("--> " + e.toString());]
+                generated_keys_B -> published_keys_B [after_publish_bundle \ System.out.println("--> " + e.toString());]
+                published_keys_B -> secret_active [after_get_shared_secret_active \ System.out.println("--> " + e.toString());]
+                secret_active -> secret_passive [before_get_shared_secret_passive \ System.out.println("--> " + e.toString());]
+                secret_passive -> hidden_pre_keys_deleted [after_delete_hidden_pre_keys\ pre_key_deleted \\ System.out.println("--> " + e.toString());]
+                hidden_pre_keys_deleted -> final [after_get_shared_secret_passive\ shared_secret_same && associated_data_same  \\ System.out.println("--> " + e.toString());]
+
+                start -> start [before_get_shared_secret_active || before_get_shared_secret_passive \ !after_generate_pre_keys \\ System.out.println("--> " + e.toString());]
+                secret_passive -> secret_passive [after_get_shared_secret_passive \ !after_delete_hidden_pre_keys \\ System.out.println("--> " + e.toString());]
+            }
+        }
+
+        
+    }
+
+}
