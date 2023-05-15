@@ -1,0 +1,6 @@
+lib/*
+bin/*
+obj/*
+
+!lib/.empty
+!obj/.empty

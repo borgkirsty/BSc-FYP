@@ -3,10 +3,10 @@
 '''
 
 #Import libraries
+import time
 import x3dh
 from typing import Dict
 import asyncio
-from datetime import datetime
 import json
 import aspectlib
 
@@ -96,7 +96,7 @@ def add_event(when, what, watch={}):
 
     event_data = {
         "id": id,
-        "timestamp": datetime.timestamp(datetime.now()),
+        "timestamp": int(time.time()),
         "when": when,
         "what": what,
         "watch": watch
