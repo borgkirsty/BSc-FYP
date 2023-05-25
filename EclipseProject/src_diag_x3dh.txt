@@ -1,0 +1,19 @@
+digraph _logic_x3dh {
+rankdir=LR;
+node [shape = doublecircle]; last;
+node [shape = circle]; generated_keys_A generated_keys_B published_keys_A published_keys_B secret_active secret_passive hidden_pre_keys_deleted start;
+node [shape = octagon]; bad;
+node [shape = point]; _s_s;
+_s_s -> start;
+published_keys_B -> secret_active [ label = "(1) after_get_shared_secret_active\\\\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+start -> generated_keys_A [ label = "(1) after_generate_pre_keys\\\\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+start -> start [ label = "(2) before_get_shared_secret_active\\! ( after_generate_pre_keys ) \\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+start -> start [ label = "(3) before_get_shared_secret_passive\\! ( after_generate_pre_keys ) \\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+hidden_pre_keys_deleted -> last [ label = "(1) after_get_shared_secret_passive\\shared_secret_same && associated_data_same \\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+generated_keys_B -> published_keys_B [ label = "(1) after_publish_bundle\\\\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+secret_active -> secret_passive [ label = "(1) before_get_shared_secret_passive\\\\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+generated_keys_A -> published_keys_A [ label = "(1) after_publish_bundle\\\\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+secret_passive -> hidden_pre_keys_deleted [ label = "(1) after_delete_hidden_pre_keys\\pre_key_deleted \\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+secret_passive -> secret_passive [ label = "(2) after_get_shared_secret_passive\\! after_delete_hidden_pre_keys \\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+published_keys_A -> generated_keys_B [ label = "(1) before_generate_pre_keys\\\\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+}

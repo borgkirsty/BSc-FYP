@@ -236,7 +236,7 @@ GLOBAL
             start -> prekeyGenerated [after_generate_pre_keys \ generatedPreKeys ]
             prekeyGenerated -> bundlePublished [after_publish_bundle \ bundleCreated]
             bundlePublished -> stateCreated [after_create \ ikType && skType && pkType]
-            stateCreated -> bad [after_create \ !ikType || !skType || !pkType \ System.out.println("--> " + e.toString());]
+            bundlePublished -> bad [after_create \ !ikType || !skType || !pkType \ System.out.println("--> " + e.toString());]
         }
     }
 
@@ -244,6 +244,7 @@ GLOBAL
     PROPERTY refill 
     {
         STATES{
+        	BAD{bad}
             NORMAL{refillExpected prekeyGenerated bundleModified}
             STARTING{start}
         }
@@ -251,6 +252,7 @@ GLOBAL
         TRANSITIONS{
             start -> refillExpected [before_get_shared_secret_passive \ pkRefillExpected]
             refillExpected -> prekeyGenerated [after_generate_pre_keys \ generatedPreKeys] 
+            refillExpected -> bad [after_generate_pre_keys \ !generatedPReKeys \ System.out.println("--> " + e.toString());]
             prekeyGenerated -> bundleModified [after_publish_bundle \ bundleModified]
         }
     }
@@ -260,6 +262,7 @@ GLOBAL
     {
         STATES
         {
+        	BAD{bad}
             NORMAL{sigPreKeyRotated}
             STARTING{start}
         }
@@ -267,6 +270,7 @@ GLOBAL
         TRANSITIONS
         {
             start -> sigPreKeyotated [after_rotate_signed_pre_key \ pkRotate]
+          	start -> bad [after_rotate_signed_pre_key \ !pkRotate \ System.out.println("--> " + e.toString());]
         }
         
     }
@@ -276,6 +280,7 @@ GLOBAL
     {
         STATES
         {
+        	BAD{bad}
             NORMAL{preKeyedPassive preKeyDeleted}
             STARTING{start}
         }
@@ -284,6 +289,7 @@ GLOBAL
         {
             start -> preKeyedPassive [before_get_shared_secret_passive \ pkUsed]
             preKeyedPassive -> preKeyDeleted [after_delete_pre_key \ pkDeleted]
+            preKeyedPassive -> bad [after_delete_pre_key \ !pkDeleted \ System.out.println("--> " + e.toString());]
         }
     }
 

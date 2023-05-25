@@ -36,7 +36,7 @@ def load_L0():
     if platform == "linux":
         return CDLL("/home/axel/Workspace/SEcube/lib/L0.so")
     else:
-        return CDLL("C:\\Users\\borgk\\OneDrive\\Documents\\Papers\\YR3 SEM1\\FYP\\Project\\rvtee_protocol\\SEcubeWrapper\\lib\\L0.dll",
+        return CDLL("C:\\Users\\borgk\\FYP\\rvtee_protocol\\SEcubeWrapper\\lib\\L0.dll",
                            winmode=0x00000008)
 
 
@@ -44,7 +44,7 @@ def load_L1():
     if platform == "linux":
         return CDLL("/home/axel/Workspace/SEcube/lib/L1.so")
     else:
-        return CDLL("C:\\Users\\borgk\\OneDrive\\Documents\\Papers\\YR3 SEM1\\FYP\\Project\\rvtee_protocol\\SEcubeWrapper\\lib\\L1.dll",
+        return CDLL("C:\\Users\\borgk\\FYP\\rvtee_protocol\\SEcubeWrapper\\lib\\L1.dll",
                            winmode=0x00000008)
 
 

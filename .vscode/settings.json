@@ -1,5 +1,5 @@
 {
-    "workbench.colorTheme": "Quiet Light",
+    "workbench.colorTheme": "Solarized Light",
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
         "rv_protocol/gson-2.8.6.jar"

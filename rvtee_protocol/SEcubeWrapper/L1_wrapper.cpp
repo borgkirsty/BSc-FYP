@@ -195,7 +195,7 @@ int8_t L1_CryptoSetTimeNow(L1_handle_t *l1)
     {
         obj->L1CryptoSetTime(time(0));
     }
-    catch (...)
+    catch (const std::exception &exc)
     {
         return -1;
     }

@@ -1,0 +1,9 @@
+digraph _logic_refill {
+rankdir=LR;
+node [shape = circle]; refillExpected prekeyGenerated bundleModified start;
+node [shape = point]; _s_s;
+_s_s -> start;
+refillExpected -> prekeyGenerated [ label = "(1) after_generate_pre_keys\\generatedPreKeys "];
+prekeyGenerated -> bundleModified [ label = "(1) after_publish_bundle\\bundleModified "];
+start -> refillExpected [ label = "(1) before_get_shared_secret_passive\\pkRefillExpected "];
+}

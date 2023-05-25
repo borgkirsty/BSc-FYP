@@ -31,6 +31,7 @@ void L1::L1CryptoSetTime(uint32_t devTime) {
 					&respLen);
 	}
 	catch(L1Exception& e) {
+		printf("L1CryptoSetTime: %s\n", e.what());
 		throw cryptoTimeExc;
 	}
 }

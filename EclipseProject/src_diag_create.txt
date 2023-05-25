@@ -1,0 +1,12 @@
+digraph _logic_create {
+rankdir=LR;
+node [shape = doublecircle]; stateCreated;
+node [shape = circle]; prekeyGenerated bundlePublished start;
+node [shape = octagon]; bad;
+node [shape = point]; _s_s;
+_s_s -> start;
+prekeyGenerated -> bundlePublished [ label = "(1) after_publish_bundle\\bundleCreated "];
+bundlePublished -> bad [ label = "(1) after_create\\! ikType || ! skType || ! pkType \\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+bundlePublished -> stateCreated [ label = "(1) after_create\\ikType && skType && pkType "];
+start -> prekeyGenerated [ label = "(1) after_generate_pre_keys\\generatedPreKeys "];
+}
