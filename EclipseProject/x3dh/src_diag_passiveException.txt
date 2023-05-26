@@ -1,0 +1,10 @@
+digraph _logic_passiveException {
+rankdir=LR;
+node [shape = circle]; throwException start;
+node [shape = octagon]; noExceptionThrown;
+node [shape = point]; _s_s;
+_s_s -> start;
+start -> throwException [ label = "(1) before_get_shared_secret_passive\\! spkFound "];
+throwException -> start [ label = "(1) exception_get_shared_secret_passive"];
+throwException -> noExceptionThrown [ label = "(2) after_get_shared_secret_passive"];
+}

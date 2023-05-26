@@ -3,6 +3,7 @@
 '''
 
 #Import libraries
+import random
 import time
 import x3dh
 from typing import Dict, Iterator, Any
@@ -80,9 +81,40 @@ def generate_settings(
             yield state_settings
 
 
+#Function from python-x3dh protocol implementation
+def flip_random_bit(data: bytes, exclude_msb: bool = False) -> bytes:
+    """
+    Flip a random bit in a byte array.
+
+    Args:
+        data: The byte array to flip a random bit in.
+        exclude_msb: Whether the most significant bit of the byte array should be excluded from the random
+            selection. See note below.
+
+    For Curve25519, the most significant bit of the public key is always cleared/ignored, as per RFC 7748 (on
+    page 7). Thus, a bit flip of that bit does not make the signature verification fail, because the bit flip
+    is ignored. The `exclude_msb` parameter can be used to disallow the bit flip to appear on the most
+    significant bit and should be set when working with Curve25519 public keys.
+
+    Returns:
+        The data with a random bit flipped.
+    """
+
+    while True:
+        modify_byte = random.randrange(len(data))
+        modify_bit = random.randrange(8)
+
+        # If the most significant bit was randomly chosen and `exclude_msb` is set, choose again.
+        if not (exclude_msb and modify_byte == len(data) - 1 and modify_bit == 7):
+            break
+
+    data_mut = bytearray(data)
+    data_mut[modify_byte] ^= 1 << modify_bit
+    return bytes(data_mut)
+
 #Function to initialize key agreement
 async def initialize_key_agreement() -> None:
-    for state_settings in generate_settings("generalX3DH".encode("ASCII"), pre_key_refill_target=10, pre_key_refill_threshold=5):
+    for state_settings in generate_settings("badAgreement".encode("ASCII"), pre_key_refill_target=10, pre_key_refill_threshold=5):
         #Create states for Alice and Bob
         state_a = myState.create(**state_settings)
         state_b = myState.create(**state_settings)
@@ -94,15 +126,19 @@ async def initialize_key_agreement() -> None:
         #Perform the first, active half of the key agreement
         shared_secret_active, associated_data_active, header = await state_a.get_shared_secret_active(bundle_b, "ad appendix". encode("ASCII"), )
 
-        #Perform the second, passive half of the key agreement
-        shared_secret_passive, associated_data_passive, _ = await state_b.get_shared_secret_passive(header, "ad appendix". encode("ASCII"))
-
-        #Rotate signed pre-key for Alice
-        state_a.rotate_signed_pre_key()
-
-        #Rotate signed pre-key for Bob
-        state_b.rotate_signed_pre_key()
-
+        #Flip a random bit in the signature
+        signed_pre_key_sig = flip_random_bit(bundle_b.signed_pre_key_sig)
+        bundle_modified = x3dh.Bundle(
+            identity_key=bundle_b.identity_key,
+            signed_pre_key=bundle_b.signed_pre_key,
+            signed_pre_key_sig=signed_pre_key_sig,
+            pre_keys=bundle_b.pre_keys
+        )
+        try:
+            await state_a.get_shared_secret_active(bundle_modified)
+            assert False
+        except:
+            pass
 
 
 '''
@@ -122,14 +158,14 @@ def add_event(when, what, watch={}):
     }
 
     try:
-        with open("./rv_protocol/general_trace.json", "r") as f:
+        with open("./rv_protocol/bad_trace.json", "r") as f:
             trace_data = json.load(f)
     except:
         trace_data = []
 
     trace_data.append(event_data)
 
-    with open("./rv_protocol/general_trace.json", "w") as f:
+    with open("./rv_protocol/bad_trace.json", "w") as f:
         json.dump(trace_data, f)
         
     id += 1
@@ -301,4 +337,4 @@ if __name__ == "__main__":
     asyncio.run(agreement)
 
     #Print the time taken
-    print("General with RV Time:--- %s seconds ---" % (time.time() - start_time))
+    print("Bad Agreements with RV Time:--- %s seconds ---" % (time.time() - start_time))

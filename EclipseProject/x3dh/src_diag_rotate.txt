@@ -1,0 +1,10 @@
+digraph _logic_rotate {
+rankdir=LR;
+node [shape = circle]; sigPreKeyRotated pkRotateExpected start;
+node [shape = octagon]; bad;
+node [shape = point]; _s_s;
+_s_s -> start;
+pkRotateExpected -> sigPreKeyRotated [ label = "(1) after_rotate_signed_pre_key\\pkRotate "];
+pkRotateExpected -> bad [ label = "(2) after_rotate_signed_pre_key\\! pkRotate \\System . out . println ( \" -->  \" + e . toString ( ) ) ; "];
+start -> pkRotateExpected [ label = "(1) before_rotate_signed_pre_key\\rotateExpected "];
+}

@@ -1,45 +1,12 @@
-IMPORTS
-{
-    import java.util.Arrays;
-    import java.util.ArrayList;
-
-    import event_replayer.Event;
+IMPORTS{
+	import event_replayer.Event;
 }
 
 GLOBAL
 {
 
-    VARIABLES
-    {
-        boolean generatedPreKeys = false;
-        boolean ikType = false;
-        boolean skType = false;
-        boolean pkType = false;
+    EVENTS{
 
-        boolean bundleCreated = false;
-        boolean bundleModified = false;
-
-        boolean pkRotate = false;
-
-        boolean pkAvailable = false;
-
-        boolean pkRefillExpected = false;
-        boolean pkUsed = false;
-        boolean spkFound = false;
-
-		boolean bundleBChanged = false;
-        boolean ikSame = false;
-        boolean spkSame = false;
-        boolean spkSigSame = false;
-        boolean pkDeleted = false;
-        boolean pkSame = false;
-        boolean sharedSecretSame = false;
-        boolean associatedDataSame = false;
-
-    }
-
-    EVENTS
-    {
         before_create(
             Event e
         ) = { Event e1.replay() }
@@ -204,7 +171,7 @@ GLOBAL
             } where {
                 e = e1;
                 pkRefillExpected = (boolean)e1.getWatch().get("refill_expected");
-                pkUsed = (boolean)e1.getWatch().get("pre_key_used");
+                pkUsed = (boolean)e1.getWatch().get("prekey_used");
                 spkFound = (boolean)e1.getWatch().get("signed_pre_key_found");
             }
 
@@ -257,10 +224,13 @@ GLOBAL
             start -> prekeyGenerated [after_generate_pre_keys \ generatedPreKeys ]
             prekeyGenerated -> bundlePublished [after_publish_bundle \ bundleCreated]
             bundlePublished -> stateCreated [after_create \ ikType && skType && pkType]
-            stateCreated -> bad [after_create \ !ikType || !skType || !pkType \ System.out.println("--> " + e.toString());]
+            stateCreated -> bad [after_create \ !ikType  \ System.out.println("--> " + e.toString());]
+            stateCreated -> bad [after_create \ !skType \ System.out.println("--> " + e.toString());]
+            stateCreated -> bad [after_create \ !pkType \ System.out.println("--> " + e.toString());]
+            
         }
     }
-
+    
     %%Property 2
     PROPERTY refill 
     {
@@ -280,18 +250,22 @@ GLOBAL
     PROPERTY rotate
     {
         STATES
-        {
-            NORMAL{sigPreKeyRotated}
+        {	
+        	BAD {bad}
+            NORMAL{sigPreKeyRotated pkRotateExpected}
             STARTING{start}
         }
 
         TRANSITIONS
         {
-            start -> sigPreKeyotated [after_rotate_signed_pre_key \ pkRotate]
+        	start -> pkRotateExpected [before_rotate_signed_pre_key \ rotateExpected]
+            pkRotateExpected -> sigPreKeyRotated [after_rotate_signed_pre_key \ pkRotate]
+        	pkRotateExpected -> bad [after_rotate_signed_pre_key \ !pkRotate \ System.out.println("--> " + e.toString());]
         }
         
     }
-
+ 
+ 
     %%Property 5
     PROPERTY delete
     {
@@ -346,6 +320,6 @@ GLOBAL
             throwException -> noExceptionThrown [after_get_shared_secret_passive]
         }
     }
-   
-        
- }
+      
+    
+}

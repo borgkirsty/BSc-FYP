@@ -1,0 +1,11 @@
+digraph _logic_delete {
+rankdir=LR;
+node [shape = circle]; preKeyedPassive preKeyDeleted nonPreKeyedPassive start;
+node [shape = octagon]; badDelete;
+node [shape = point]; _s_s;
+_s_s -> start;
+nonPreKeyedPassive -> badDelete [ label = "(1) before_delete_pre_key"];
+preKeyedPassive -> preKeyDeleted [ label = "(1) after_delete_pre_key\\pkDeleted "];
+start -> preKeyedPassive [ label = "(1) before_get_shared_secret_passive\\pkUsed "];
+start -> nonPreKeyedPassive [ label = "(2) before_get_shared_secret_passive\\! pkUsed "];
+}

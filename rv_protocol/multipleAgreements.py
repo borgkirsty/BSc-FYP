@@ -5,7 +5,7 @@
 #Import libraries
 import time
 import x3dh
-from typing import Dict, Iterator, Any
+from typing import Any, Dict, Iterator
 import asyncio
 import json
 import aspectlib
@@ -79,10 +79,10 @@ def generate_settings(
 
             yield state_settings
 
-
 #Function to initialize key agreement
 async def initialize_key_agreement() -> None:
-    for state_settings in generate_settings("generalX3DH".encode("ASCII"), pre_key_refill_target=10, pre_key_refill_threshold=5):
+        
+    for state_settings in generate_settings("multipleAgreements".encode("ASCII"), pre_key_refill_target=10, pre_key_refill_threshold=5):
         #Create states for Alice and Bob
         state_a = myState.create(**state_settings)
         state_b = myState.create(**state_settings)
@@ -91,19 +91,13 @@ async def initialize_key_agreement() -> None:
         bundle_a = bundles[state_a.bundle.identity_key]
         bundle_b = bundles[state_b.bundle.identity_key]
 
-        #Perform the first, active half of the key agreement
-        shared_secret_active, associated_data_active, header = await state_a.get_shared_secret_active(bundle_b, "ad appendix". encode("ASCII"), )
-
-        #Perform the second, passive half of the key agreement
-        shared_secret_passive, associated_data_passive, _ = await state_b.get_shared_secret_passive(header, "ad appendix". encode("ASCII"))
-
-        #Rotate signed pre-key for Alice
-        state_a.rotate_signed_pre_key()
-
-        #Rotate signed pre-key for Bob
-        state_b.rotate_signed_pre_key()
-
-
+       
+    # Perform a lot of key agreements:
+        for _ in range(50):                
+            bundle_b = bundles[state_b.bundle.identity_key]
+            header = (await state_a.get_shared_secret_active(bundle_b))[2]
+            await state_b.get_shared_secret_passive(header)
+       
 
 '''
     JSON trace file 
@@ -122,14 +116,14 @@ def add_event(when, what, watch={}):
     }
 
     try:
-        with open("./rv_protocol/general_trace.json", "r") as f:
+        with open("./rv_protocol/multipleAgreements_trace.json", "r") as f:
             trace_data = json.load(f)
     except:
         trace_data = []
 
     trace_data.append(event_data)
 
-    with open("./rv_protocol/general_trace.json", "w") as f:
+    with open("./rv_protocol/multipleAgreements_trace.json", "w") as f:
         json.dump(trace_data, f)
         
     id += 1
@@ -278,11 +272,9 @@ def _get_shared_secret_passive_aspect(*args):
             "associated_data_same": associated_data_active == associated_data_passive
         })
 
-
-
 #Main function
 if __name__ == "__main__":
-    
+
     #Time the program
     start_time = time.time()
 
@@ -297,8 +289,9 @@ if __name__ == "__main__":
     ASPECT_TABLE[DELETE_PRE_KEY_ASPECT] = aspectlib.weave(myState.delete_pre_key, _delete_pre_key_aspect) #good
     ASPECT_TABLE[GET_SHARED_SECRET_PASSIVE_ASPECT] = aspectlib.weave(myState.get_shared_secret_passive, _get_shared_secret_passive_aspect) #good
 
+
     agreement = initialize_key_agreement()
     asyncio.run(agreement)
 
     #Print the time taken
-    print("General with RV Time:--- %s seconds ---" % (time.time() - start_time))
+    print("Multiple Agreements with RV Time: --- %s seconds ---" % (time.time() - start_time))
